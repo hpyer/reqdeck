@@ -1,0 +1,70 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Verify tag and changelog
+        run: |
+          set -euo pipefail
+          VERSION="${GITHUB_REF_NAME#v}"
+          MANIFEST_VERSION="$(node -p "require('./manifest.json').version")"
+          if [ "$VERSION" != "$MANIFEST_VERSION" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match manifest version $MANIFEST_VERSION."
+            exit 1
+          fi
+          if ! grep -q "^## \[$VERSION\]" CHANGELOG.md; then
+            echo "CHANGELOG.md has no section for $VERSION. Run npm run release first."
+            exit 1
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Require extension key
+        env:
+          EXTENSION_PUBLIC_KEY: ${{ secrets.EXTENSION_PUBLIC_KEY }}
+        run: |
+          if [ -z "${EXTENSION_PUBLIC_KEY:-}" ]; then
+            echo "Missing EXTENSION_PUBLIC_KEY repository secret."
+            echo "Run npm run keygen locally, then add .keys/extension-public.txt under Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+
+      - name: Test
+        run: npm test
+
+      - name: Syntax check
+        run: npm run check
+
+      - name: Build extension package
+        env:
+          EXTENSION_PUBLIC_KEY: ${{ secrets.EXTENSION_PUBLIC_KEY }}
+        run: npm run package
+
+      - name: Extract release notes
+        run: node scripts/extract-release-notes.mjs "$VERSION" > release-notes.md
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "dist/reqdeck-$VERSION.zip" \
+            --title "ReqDeck $GITHUB_REF_NAME" \
+            --notes-file release-notes.md

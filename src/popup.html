@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>ReqDeck</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app" id="app" aria-busy="true">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark" id="brandMark" aria-hidden="true"></span>
+          <span class="brand-text">
+            <span class="brand-name">ReqDeck</span>
+            <span class="brand-tag" data-i18n="tagline">HTTP rule studio</span>
+          </span>
+        </div>
+        <div class="top-actions">
+          <div class="cors-control">
+            <button class="help-dot" id="corsHelp" type="button" aria-label="Info">
+              <span id="corsHelpIcon"></span>
+            </button>
+            <span class="cors-label" id="corsLabel" data-i18n="corsAll">CORS all</span>
+            <button
+              class="switch"
+              id="corsAll"
+              role="switch"
+              aria-checked="false"
+              aria-labelledby="corsLabel"
+            >
+              <span class="switch-thumb"></span>
+            </button>
+          </div>
+          <button class="btn btn-primary" id="newRuleBtn" type="button" data-i18n-title="newRule" data-i18n-aria="newRule">
+            <span class="btn-icon" id="plusIcon"></span>
+            <span data-i18n="newRule">New rule</span>
+          </button>
+          <button
+            class="icon-btn"
+            id="settingsBtn"
+            type="button"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            data-i18n-title="settings"
+          >
+            <span id="settingsIcon"></span>
+          </button>
+        </div>
+      </header>
+
+      <div class="workspace" id="workspace">
+        <div class="toolbar" id="toolbar">
+          <div class="search-field">
+            <span class="search-icon" id="searchIcon"></span>
+            <input
+              id="searchInput"
+              type="search"
+              autocomplete="off"
+              spellcheck="false"
+              data-i18n-placeholder="searchPlaceholder"
+            />
+            <kbd>/</kbd>
+          </div>
+          <label class="select-field">
+            <span class="sr-only">Type filter</span>
+            <select id="typeFilter"></select>
+            <span class="select-chevron" id="typeChevron"></span>
+          </label>
+          <label class="select-field">
+            <span class="sr-only">Status filter</span>
+            <select id="stateFilter"></select>
+            <span class="select-chevron" id="stateChevron"></span>
+          </label>
+        </div>
+
+        <div class="notice-zone" id="noticeZone"></div>
+
+        <div class="list-scroll" id="listScroll">
+          <div class="rule-list" id="ruleList"></div>
+          <div class="empty-state" id="emptyState" hidden></div>
+        </div>
+      </div>
+
+      <footer class="statusbar">
+        <div class="status-left">
+          <span class="stat"><b id="statRules">0</b> <span id="statRulesLabel" data-i18n="rules">rules</span></span>
+          <span class="stat"><b id="statActive">0</b> <span data-i18n="active">active</span></span>
+          <span class="cors-state" id="corsState">
+            <i class="dot" aria-hidden="true"></i><span id="corsStateLabel">Off</span>
+          </span>
+          <span class="last-hour" id="hitStat">
+            <i class="pulse-dot" aria-hidden="true"></i>
+            <span data-i18n="lastHour">Last hour</span>
+            <b id="statHits">0</b>
+          </span>
+        </div>
+        <div class="status-right">
+          <span class="status-local">
+            <span id="statusLocalIcon"></span>
+            <span data-i18n="statusLocalOnly">Data stays on this device</span>
+          </span>
+          <span class="sep" aria-hidden="true"></span>
+          <span class="version" id="versionLabel">v1.0.0</span>
+        </div>
+      </footer>
+    </div>
+
+    <div id="overlayRoot"></div>
+    <div id="modalRoot"></div>
+    <div id="menuRoot"></div>
+    <div class="toast-root" id="toastRoot" role="status" aria-live="polite"></div>
+    <input type="file" id="importInput" accept="application/json,.json" hidden />
+
+    <noscript>
+      <p style="padding: 24px; font: 14px system-ui">ReqDeck needs JavaScript enabled.</p>
+    </noscript>
+    <script src="app.js" type="module"></script>
+  </body>
+</html>
