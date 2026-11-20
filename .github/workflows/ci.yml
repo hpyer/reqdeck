@@ -36,3 +36,21 @@ jobs:
             echo "CHANGELOG.md may only be changed by npm run release."
             exit 1
           fi
+
+      - name: Protect CHANGELOG on main
+        if: github.event_name == 'push'
+        run: |
+          set -euo pipefail
+          BASE="${{ github.event.before }}"
+          if [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
+            echo "Skipping CHANGELOG guard for a new branch."
+            exit 0
+          fi
+          if git diff --name-only "$BASE" "${{ github.sha }}" | grep -qx 'CHANGELOG.md'; then
+            git fetch --tags --force
+            VERSION="$(node -p "require('./manifest.json').version")"
+            if ! git tag --points-at HEAD | grep -qx "v$VERSION"; then
+              echo "CHANGELOG.md may only be changed by npm run release (the release commit must be tagged v$VERSION)."
+              exit 1
+            fi
+          fi

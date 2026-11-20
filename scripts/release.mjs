@@ -179,13 +179,15 @@ git(['tag', '-a', tagName, '-m', `ReqDeck v${next}`]);
 
 if (noPush) {
   console.log(`\nCreated local commit and ${tagName}. Push when ready:`);
-  console.log(`  git push origin HEAD\n  git push origin ${tagName}`);
+  console.log(`  git push origin ${tagName}\n  git push origin HEAD`);
   process.exit(0);
 }
 
-console.log('\nPushing branch and tag...');
-git(['push', 'origin', 'HEAD'], { inherit: true });
+console.log('\nPushing tag and branch...');
+// Tag first so the main-branch CI can verify that a CHANGELOG change belongs
+// to a release commit.
 git(['push', 'origin', tagName], { inherit: true });
+git(['push', 'origin', 'HEAD'], { inherit: true });
 
 console.log(`\nPushed ${tagName}. GitHub Actions will build the package and publish the GitHub Release.`);
 console.log('CHANGELOG.md was updated only as part of this release.');
